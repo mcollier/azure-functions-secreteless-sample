@@ -59,6 +59,7 @@ resource azureFunction 'Microsoft.Web/sites@2021-02-01' = {
   }
   properties: {
     siteConfig: {
+      localMySqlEnabled: false
       appSettings: [
         {
           name: 'FUNCTIONS_EXTENSION_VERSION'
@@ -73,14 +74,34 @@ resource azureFunction 'Microsoft.Web/sites@2021-02-01' = {
           value: 'dotnet'
         }
         {
-          name: 'AzureWebJobsStorage__accountName'
-          value: storageAccount.name
+          name: 'AzureWebJobsStorage'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
         }
         {
-          name: 'MyBlobStorage__serviceUri'
+          name: 'MyBlobStorage__blobServiceUri'
           value: storageAccount.properties.primaryEndpoints.blob
         }
+        {
+          name: 'MyBlobStorage__queueServiceUri'
+          value: storageAccount.properties.primaryEndpoints.queue
+        }
+        {
+          name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
+          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+        }
       ]
+    }
+  }
+
+  resource config 'config' = {
+    name: 'web'
+    properties: {
+      ftpsState: 'Disabled'
+      minTlsVersion: '1.2'
+      detailedErrorLoggingEnabled: true
+      httpLoggingEnabled: true
+      requestTracingEnabled: true
+      remoteDebuggingEnabled: false
     }
   }
 }
