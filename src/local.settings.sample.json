@@ -4,7 +4,6 @@
     "APPINSIGHTS_INSTRUMENTATIONKEY": "[APPLICATION-INSIGHTS-INSTRUMENTATION-KEY]",
     "AzureWebJobsStorage__accountName": "[FULL-AZURE-STORAGE-CONNECTION-STRING]",
     "FUNCTIONS_WORKER_RUNTIME": "dotnet",
-    "MyBlobStorage__blobServiceUri": "https://[STORAGE-ACCOUNT-NAME].blob.core.windows.net/",
-    "MyBlobStorage__queueServiceUri": "https://[STORAGE-ACCOUNT-NAME].queue.core.windows.net/"
+    "MyBlobStorage__serviceUri": "https://[STORAGE-ACCOUNT-NAME].blob.core.windows.net/"
   }
 }

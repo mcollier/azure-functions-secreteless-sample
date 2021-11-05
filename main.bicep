@@ -79,12 +79,8 @@ resource azureFunction 'Microsoft.Web/sites@2021-02-01' = {
           value: storageAccount.name
         }
         {
-          name: 'MyBlobStorage__blobServiceUri'
+          name: 'MyBlobStorage__serviceUri'
           value: storageAccount.properties.primaryEndpoints.blob
-        }
-        {
-          name: 'MyBlobStorage__queueServiceUri'
-          value: storageAccount.properties.primaryEndpoints.queue
         }
 
         // The WEBSITE_CONTENTAZUREFILECONNECTIONSTRING value seems to require a full Azure Storage connection string. I haven't
