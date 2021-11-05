@@ -8,6 +8,7 @@ param resourceBaseName string = uniqueString(resourceGroup().id)
 // See https://docs.microsoft.com/en-us/azure/role-based-access-control/built-in-roles#storage
 var storageBlobDataOwnerRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b')
 var storageQueueDataContributorDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '974c5e8b-45b9-4653-ba55-5f855dd0fb88')
+var ownerRoleDefinitionId = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', '8e3af657-a8ff-443c-a75c-2fe8c4bcb635')
 
 resource logAnalyticsWorkspace 'Microsoft.OperationalInsights/workspaces@2021-06-01' = {
   name: 'log-${resourceBaseName}'
@@ -74,8 +75,8 @@ resource azureFunction 'Microsoft.Web/sites@2021-02-01' = {
           value: 'dotnet'
         }
         {
-          name: 'AzureWebJobsStorage'
-          value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
+          name: 'AzureWebJobsStorage__accountName'
+          value: storageAccount.name
         }
         {
           name: 'MyBlobStorage__blobServiceUri'
@@ -85,6 +86,9 @@ resource azureFunction 'Microsoft.Web/sites@2021-02-01' = {
           name: 'MyBlobStorage__queueServiceUri'
           value: storageAccount.properties.primaryEndpoints.queue
         }
+
+        // The WEBSITE_CONTENTAZUREFILECONNECTIONSTRING value seems to require a full Azure Storage connection string. I haven't
+        // yet figured out if there is a way to get WEBSITE_CONTENTAZUREFILECONNECTIONSTRING to use managed identity.
         {
           name: 'WEBSITE_CONTENTAZUREFILECONNECTIONSTRING'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};EndpointSuffix=${environment().suffixes.storage};AccountKey=${storageAccount.listKeys().keys[0].value}'
@@ -120,6 +124,15 @@ resource roleAssignmentStorageQueueDataContributor 'Microsoft.Authorization/role
   name: guid(resourceGroup().id, storageQueueDataContributorDefinitionId)
   properties: {
     roleDefinitionId: storageQueueDataContributorDefinitionId
+    principalId: azureFunction.identity.principalId
+  }
+}
+
+resource roleAssignmentOwner 'Microsoft.Authorization/roleAssignments@2020-08-01-preview' = {
+  scope: storageAccount
+  name: guid(resourceGroup().id, ownerRoleDefinitionId)
+  properties: {
+    roleDefinitionId: ownerRoleDefinitionId
     principalId: azureFunction.identity.principalId
   }
 }

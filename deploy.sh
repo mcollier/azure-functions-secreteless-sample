@@ -14,7 +14,12 @@ az deployment group create \
     --template-file ".\main.bicep" \
     --confirm-with-what-if
 
-FUNCTION_NAME=$(az deployment group show --name "$DEPLOYMENT_NAME" --resource-group "$RESOURCE_GROUP_NAME" --query properties.outputs.functionName.value -o tsv)
+# NOTE - Azure Functions Core Tools publishing currently is not working when setting 'AzureWebJobsStorage__accountName'.
+#        Error message is: "'app-name' app is missing AzureWebJobsStorage app setting. That setting is required for publishing consumption linux apps."
+#
+#        Publishing from Visual Studio Code does work.
 
-cd ./src || exit
-func azure functionapp publish "$FUNCTION_NAME"
+# FUNCTION_NAME=$(az deployment group show --name "$DEPLOYMENT_NAME" --resource-group "$RESOURCE_GROUP_NAME" --query properties.outputs.functionName.value -o tsv)
+
+# cd ./src || exit
+# func azure functionapp publish "$FUNCTION_NAME"
